@@ -1,9 +1,12 @@
-﻿namespace ContactsManager.ConsoleApp
+﻿using System;
+
+namespace ContactsManager.ConsoleApp
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
+
         }
     }
 }
