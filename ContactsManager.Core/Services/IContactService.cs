@@ -16,9 +16,5 @@ namespace ContactsManager.Core.Services
 
         void DeleteContact(Guid id);
 
-        void SaveAsJson(string filePath);
-
-        void LoadFromJson(string filePath);
-
     }
 }

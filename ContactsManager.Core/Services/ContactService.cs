@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ContactsManager.Core.Models;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace ContactsManager.Core.Services
 {
@@ -10,11 +12,17 @@ namespace ContactsManager.Core.Services
     {
 
         private readonly List<Contact> contacts;
+        private readonly ContactJsonFileManager fileManager;
 
-        public ContactService()
+        public ContactService(ContactJsonFileManager fileManager)
         {
             contacts = new List<Contact>();
+            fileManager = fileManager ?? throw new ArgumentNullException(nameof(fileManager));
         }
+
+        public List<Contact> GetAllContacts() => contacts;
+
+        public Contact GetContactById(Guid id) => contacts.FirstOrDefault(contact => contact.Id == id);
 
         public void AddContact(Contact contact)
         {
@@ -22,33 +30,12 @@ namespace ContactsManager.Core.Services
             contacts.Add(contact);
         }
 
-        public void DeleteContact(Guid id)
-        {
-            var contact = GetContactById(id);
-            if (contact == null)
-            {
-                throw new InvalidCastException($"Contact ID {id} not found");
-            }
-
-            contacts.Remove(contact);
-        }
-
-        public List<Contact> GetAllContacts()
-        {
-            return contacts;
-        }
-
-        public Contact GetContactById(Guid id)
-        {
-            return contacts.FirstOrDefault(contact => contact.Id == id);
-        }
-
         public void UpdateContact(Contact updatedContact)
         {
             if (updatedContact == null) throw new ArgumentNullException(nameof(updatedContact));
-
             var contact = GetContactById(updatedContact.Id);
-            if (contact == null) throw new InvalidCastException($"Contact  id {updatedContact.Id} not found");
+
+            if (contact == null) throw new InvalidOperationException($"Contact Id {updatedContact.Id} not found");
 
             contact.FirstName = updatedContact.FirstName;
             contact.LastName = updatedContact.LastName;
@@ -59,16 +46,20 @@ namespace ContactsManager.Core.Services
             contact.City = updatedContact.City;
         }
 
+        public void DeleteContact(Guid id)
+        {
+            var contact = GetContactById(id);
+            if (contact == null) throw new InvalidOperationException($"Contact Id {id} not found.");
+        }
+
+        public void SaveAsJson(string filePath, List<Contact> contacts) => fileManager.SaveAsJson(filePath, contacts);
+
+
         public void LoadFromJson(string filePath)
         {
-            throw new NotImplementedException();
+            var contacts = fileManager.LoadFromFile(filePath);
+            contacts.Clear();
+            contacts.AddRange(contacts);
         }
-
-        public void SaveAsJson(string filePath)
-        {
-            throw new NotImplementedException();
-        }
-
-
     }
 }
